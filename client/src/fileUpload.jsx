@@ -58,11 +58,12 @@ const FileUpload = () => {
     formData.append("file", file);
 
     try {
-      const response = await axios.post("/upload", formData, {
+      const res = await axios.post("/api/files/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
+      console.log(res.data);
       setUploadSuccess("File uploaded successfully.");
       setFile(null); // Clear the file input after successful upload
     } catch (error) {

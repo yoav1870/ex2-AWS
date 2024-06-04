@@ -1,6 +1,4 @@
 const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
 
 // Configure multer to store the file in memory
 const storage = multer.memoryStorage();
@@ -24,6 +22,7 @@ const upload = multer({
 }).single("file"); // 'file' should match the name attribute in your form
 
 const validateFile = (req, res, next) => {
+  console.log("Validating file");
   upload(req, res, (err) => {
     if (err) {
       return res.status(400).json({ message: err });
@@ -34,9 +33,11 @@ const validateFile = (req, res, next) => {
 
     // Read file content
     const fileContent = req.file.buffer.toString("utf-8");
+    console.log(fileContent);
     const patientIdPattern = /\b\d{9}\b/; // Pattern to match a 9-digit number
 
     if (patientIdPattern.test(fileContent)) {
+      console.log("Patient ID found");
       next();
     } else {
       res.status(400).json({
