@@ -17,6 +17,10 @@ const FileUpload = () => {
   const onDrop = useCallback((acceptedFiles) => {
     const selected = acceptedFiles[0];
 
+    if (selected) {
+      console.log("Selected file type:", selected.type); // Log the MIME type
+    }
+
     if (selected && types.includes(selected.type)) {
       setFile(selected);
       setError("");
@@ -29,11 +33,19 @@ const FileUpload = () => {
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     multiple: false,
-    accept: types.join(","),
+    accept: {
+      "text/plain": [".txt"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        [".docx"],
+    },
   });
 
   const changeHandler = (e) => {
     let selected = e.target.files[0];
+
+    if (selected) {
+      console.log("Selected file type:", selected.type); // Log the MIME type
+    }
 
     if (selected && types.includes(selected.type)) {
       setFile(selected);
@@ -58,11 +70,15 @@ const FileUpload = () => {
     formData.append("file", file);
 
     try {
-      const res = await axios.post("/api/files/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await axios.post(
+        "http://localhost:5000/api/files/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       console.log(res.data);
       setUploadSuccess("File uploaded successfully.");
       setFile(null); // Clear the file input after successful upload
