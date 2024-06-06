@@ -12,4 +12,11 @@ class NotFoundUrlError extends Error {
     this.name = "NotFoundUrlError";
   }
 }
-module.exports = { NotFoundCRUD, NotFoundUrlError };
+class NoFileError extends Error {
+  constructor() {
+    super("No file uploaded");
+    this.status = 400;
+    this.name = "NoFileError";
+  }
+}
+module.exports = { NotFoundCRUD, NotFoundUrlError, NoFileError };

@@ -1,11 +1,12 @@
 const { uploadFile } = require("../services/s3Service");
+const { NoFileError } = require("../errors/fileErrors");
 const axios = require("axios");
 
 exports.filesController = {
   async uploadFile(req, res) {
     try {
       if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
+        throw new NoFileError();
       }
 
       const bucketName = process.env.AWS_BUCKET_NAME;
@@ -21,17 +22,24 @@ exports.filesController = {
           .json({ message: "Internal Server Error", error: err.message });
       }
     } catch (error) {
-      console.error("Error processing file:", error);
-      res
-        .status(500)
-        .json({ message: "Internal Server Error", error: error.message });
+      switch (error.name) {
+        case "NoFileError":
+          console.error("No file uploaded");
+          res.status(error.status).json({ message: "No file uploaded" });
+          break;
+        default:
+          console.error("Error processing file:", error);
+          res
+            .status(500)
+            .json({ message: "Internal Server Error", error: error.message });
+      }
     }
   },
 
   async uploadBadFile(req, res) {
     try {
       if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
+        throw new NoFileError();
       }
 
       const bucketName = process.env.AWS_BAD_FILES_BUCKET_NAME;

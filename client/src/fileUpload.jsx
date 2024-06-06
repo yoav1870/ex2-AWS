@@ -9,24 +9,15 @@ const FileUpload = () => {
   const [uploadError, setUploadError] = useState(null);
   const [uploadSuccess, setUploadSuccess] = useState(null);
 
-  const types = [
-    "text/plain",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  ];
-
   const onDrop = useCallback((acceptedFiles) => {
     const selected = acceptedFiles[0];
-
-    if (selected) {
-      console.log("Selected file type:", selected.type); // Log the MIME type
-    }
-
-    if (selected && types.includes(selected.type)) {
+    if (selected && selected.type == "text/plain") {
       setFile(selected);
       setError("");
     } else {
       setFile(null);
-      setError("Please select a text (.txt) or Word (.docx) file");
+      setUploadSuccess(null);
+      setError("Please select a text (.txt) file");
     }
   }, []);
 
@@ -35,26 +26,8 @@ const FileUpload = () => {
     multiple: false,
     accept: {
       "text/plain": [".txt"],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        [".docx"],
     },
   });
-
-  const changeHandler = (e) => {
-    let selected = e.target.files[0];
-
-    if (selected) {
-      console.log("Selected file type:", selected.type); // Log the MIME type
-    }
-
-    if (selected && types.includes(selected.type)) {
-      setFile(selected);
-      setError("");
-    } else {
-      setFile(null);
-      setError("Please select a text (.txt) or Word (.docx) file");
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,10 +52,12 @@ const FileUpload = () => {
           },
         }
       );
+      setUploadError(null);
       setUploadSuccess(res.data.message);
       setFile(null);
     } catch (error) {
       setUploadError("Error uploading file.");
+      setUploadSuccess(null);
       console.error("Error uploading file:", error);
     }
   };
@@ -113,14 +88,9 @@ const FileUpload = () => {
       >
         <input {...getInputProps()} />
         <Typography variant="body1">
-          Drag 'n' drop a text (.txt) or Word (.docx) file here, or click to
-          select one
+          Drag & drop a text (.txt) or click to select one
         </Typography>
       </Box>
-      <Button variant="contained" component="label" sx={{ mb: 2 }}>
-        Upload File
-        <input type="file" hidden onChange={changeHandler} />
-      </Button>
       <Button type="submit" variant="contained" color="primary" sx={{ mb: 2 }}>
         Submit
       </Button>
