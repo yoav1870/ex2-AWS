@@ -41,14 +41,14 @@ exports.filesController = {
         console.log("File uploaded to bad files bucket successfully:", data);
 
         // // Send Slack notification
-        // try {
-        //   await axios.post(process.env.SLACK_WEBHOOK_URL, {
-        //     text: `Bad file uploaded: ${data.Key}`,
-        //   });
-        //   console.log("Slack notification sent successfully");
-        // } catch (slackError) {
-        //   console.error("Error sending Slack notification:", slackError);
-        // }
+        try {
+          await axios.post(process.env.SLACK_WEBHOOK_URL, {
+            text: `Bad file uploaded: ${data.Key}`,
+          });
+          console.log("Slack notification sent successfully");
+        } catch (slackError) {
+          console.error("Error sending Slack notification:", slackError);
+        }
 
         res
           .status(200)
