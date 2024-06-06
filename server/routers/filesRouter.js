@@ -5,7 +5,9 @@ const { NotFoundCRUD } = require("../errors/fileErrors");
 const filesRouter = new Router();
 
 filesRouter.post("/upload", validateFile, filesController.uploadFile);
+filesRouter.post("/upload-bad", validateFile, filesController.uploadBadFile);
 filesRouter.all("*", (req, res, next) => {
   next(new NotFoundCRUD());
 });
+
 module.exports = filesRouter;

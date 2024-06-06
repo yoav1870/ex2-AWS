@@ -79,9 +79,8 @@ const FileUpload = () => {
           },
         }
       );
-      console.log(res.data);
-      setUploadSuccess("File uploaded successfully.");
-      setFile(null); // Clear the file input after successful upload
+      setUploadSuccess(res.data.message);
+      setFile(null);
     } catch (error) {
       setUploadError("Error uploading file.");
       console.error("Error uploading file:", error);

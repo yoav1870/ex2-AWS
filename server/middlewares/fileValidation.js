@@ -1,5 +1,6 @@
 const multer = require("multer");
 const mammoth = require("mammoth");
+const { filesController } = require("../controllers/filesController");
 
 // Configure multer to store the file in memory
 const storage = multer.memoryStorage();
@@ -24,14 +25,16 @@ const upload = multer({
 
 const validateFile = (req, res, next) => {
   console.log("Validating file");
-  upload(req, res, (err) => {
+  upload(req, res, async (err) => {
     if (err) {
       console.log("Error in upload:", err);
-      return res.status(400).json({ message: err });
+      await filesController.uploadBadFile(req, res);
+      return;
     }
     if (!req.file) {
       console.log("No file uploaded");
-      return res.status(400).json({ message: "No file uploaded" });
+      await filesController.uploadBadFile(req, res);
+      return;
     }
 
     const patientIdPattern = /\b\d{9}\b/;
@@ -43,7 +46,7 @@ const validateFile = (req, res, next) => {
       // Use mammoth to extract text from .docx file
       mammoth
         .extractRawText({ buffer: req.file.buffer })
-        .then((result) => {
+        .then(async (result) => {
           const fileContent = result.value;
           console.log("Extracted text content:", fileContent); // Log the extracted text content
 
@@ -54,14 +57,12 @@ const validateFile = (req, res, next) => {
             console.log(
               "Invalid file: Patient ID not found or incorrect format"
             ); // Log the error
-            res.status(400).json({
-              message: "Invalid file: Patient ID not found or incorrect format",
-            });
+            await filesController.uploadBadFile(req, res);
           }
         })
-        .catch((error) => {
+        .catch(async (error) => {
           console.log("Error extracting text from .docx file:", error);
-          res.status(500).json({ message: "Error processing file" });
+          await filesController.uploadBadFile(req, res);
         });
     } else {
       // Read plain text file content
@@ -73,9 +74,7 @@ const validateFile = (req, res, next) => {
         next();
       } else {
         console.log("Invalid file: Patient ID not found or incorrect format"); // Log the error
-        res.status(400).json({
-          message: "Invalid file: Patient ID not found or incorrect format",
-        });
+        await filesController.uploadBadFile(req, res);
       }
     }
   });
